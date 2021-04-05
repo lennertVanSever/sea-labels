@@ -1,0 +1,80 @@
+<!-- based on https://bl.ocks.org/d3noob/5c6eab54c8ca51929734b6f5cca2b231 -->
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.country {
+  stroke: white;
+  stroke-width: 0.25px;
+  fill: grey;
+}
+</style>
+<body>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://unpkg.com/topojson@3"></script>
+<script>
+var width = 1670,
+    height = 884;
+var projection = d3.geoNaturalEarth1()
+    .scale(300)
+    .center([-70, 35 ])
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var path = d3.geoPath()
+    .projection(projection);
+
+var g = svg.append("g");
+
+// load and display the World
+d3.json("https://raw.githubusercontent.com/cszang/dendrobox/master/data/world-110m2.json").then(function(topology) {
+    g.selectAll("path")
+       .data(topojson.feature(topology, topology.objects.countries).features)
+       .enter().append("path")
+       .attr('class', 'country')
+       .attr("d", path);
+});
+
+d3.json("./data.geojson").then(function({ features: seaLabels }) {
+    // g.selectAll("path")
+    //    .data(topojson.feature(topology, topology.objects.countries).features)
+    //    .enter().append("path")
+    //    .attr("d", path);
+
+    g
+      .append('g')
+      .attr('class', 'seaLabels')
+      .selectAll('path')
+      .data(seaLabels)
+      .enter()
+      .append('path')
+      .attr('d', path)
+      .attr('class', 'seaLabel')
+      .attr('fill', 'none')
+      .attr('id', ({ properties: { id } }) => `seaLabelPath${id}`);
+
+    g
+      .append('g')
+      .attr('class', 'seaLabelsPaths')
+      .selectAll('textPath')
+      .data(seaLabels)
+      .enter()
+      .append('text')
+      .attr('fill', 'var(--country)')
+      .attr('id', 'curve-text')
+      .style('text-anchor', 'middle')
+      .attr('dy', '-0.5px')
+      .attr('font-size', ({ properties: { size } }) => size * 7)
+      .attr('letter-spacing', ({ properties: { spacing } }) => spacing * 7)
+      .append('textPath')
+      .attr('class', 'seaLabelTextPath')
+      .attr('startOffset', '50%')
+      .attr('xlink:href', ({ properties: { id } }) => `#seaLabelPath${id}`)
+      .text(d => d.properties.translations.nl);
+
+});
+
+</script>
+</body>
+</html>
