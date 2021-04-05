@@ -71,7 +71,7 @@ d3.json("./data.geojson").then(function({ features: seaLabels }) {
       .attr('class', 'seaLabelTextPath')
       .attr('startOffset', '50%')
       .attr('xlink:href', ({ properties: { id } }) => `#seaLabelPath${id}`)
-      .text(d => d.properties.translations.nl);
+      .text(d => d.properties.translations.en);
 
 });
 
